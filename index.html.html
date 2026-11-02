@@ -1,0 +1,375 @@
+<!DOCTYPE html>
+<html lang="it">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="theme-color" content="#1e2a78">
+<title>Esperimento del Pendolo – Liceo Volta Como</title>
+<style>
+  :root{
+    --blue:#005eb8; --navy:#0f1b5c; --indigo:#3b3fd8; --violet:#7c3aed;
+    --cyan:#22d3ee; --green:#16a34a; --orange:#f59e0b; --red:#dc2626;
+    --ink:#1f2340; --muted:#6b7280;
+  }
+  *{box-sizing:border-box;margin:0;padding:0}
+  body{
+    font-family:"Segoe UI",system-ui,-apple-system,Roboto,Helvetica,Arial,sans-serif;
+    color:var(--ink); min-height:100vh; padding-block:24px 40px;padding-left:max(16px,env(safe-area-inset-left,0px));padding-right:max(16px,env(safe-area-inset-right,0px));
+    background:linear-gradient(135deg,#0f1b5c 0%,#2a2f9e 50%,#5b2ba8 100%);
+    background-attachment:fixed; position:relative; overflow-x:hidden;
+  }
+  .blob{position:fixed;border-radius:50%;filter:blur(80px);opacity:.28;z-index:0;animation:pulse 6s ease-in-out infinite}
+  .b1{width:300px;height:300px;background:#22d3ee;top:40px;left:-60px}
+  .b2{width:380px;height:380px;background:#a855f7;bottom:-80px;right:-80px;animation-delay:1.5s}
+  .b3{width:260px;height:260px;background:#3b82f6;top:45%;left:55%;animation-delay:3s}
+  @keyframes pulse{0%,100%{transform:scale(1)}50%{transform:scale(1.15)}}
+
+  .wrap{max-width:900px;margin:0 auto;position:relative;z-index:1}
+
+  header{text-align:center;margin-bottom:24px;color:#fff}
+  .logo-box{
+    width:150px;height:150px;margin:0 auto 18px;background:#fff;border-radius:28px;
+    display:flex;align-items:center;justify-content:center;padding:14px;position:relative;
+    box-shadow:0 20px 50px rgba(0,0,0,.35);transition:transform .3s;
+  }
+  .logo-box:hover{transform:scale(1.07) rotate(-1deg)}
+  .logo-box img,.logo-box svg{width:100%;height:100%;object-fit:contain}
+  .logo-box .reg{position:absolute;right:10px;bottom:6px;font-size:15px;font-weight:700;color:var(--blue)}
+  h1{
+    font-size:clamp(28px,6vw,48px);font-weight:800;letter-spacing:-.5px;
+    background:linear-gradient(90deg,#67e8f9,#93c5fd,#d8b4fe);-webkit-background-clip:text;background-clip:text;color:transparent;
+  }
+  header p{color:#a5f3fc;font-size:17px;margin-top:6px}
+
+  /* progress */
+  .progress{display:flex;justify-content:center;margin-bottom:26px}
+  .progress-in{
+    display:flex;align-items:center;gap:10px;padding:12px 26px;border-radius:999px;
+    background:rgba(255,255,255,.12);backdrop-filter:blur(10px);border:1px solid rgba(255,255,255,.25);
+  }
+  .dot{
+    width:44px;height:44px;border-radius:50%;display:flex;align-items:center;justify-content:center;
+    font-weight:800;font-size:18px;background:#4b5563;color:#d1d5db;transition:all .3s;
+  }
+  .dot.on{background:linear-gradient(135deg,#22d3ee,#3b82f6);color:#fff;transform:scale(1.12);box-shadow:0 6px 16px rgba(34,211,238,.45)}
+  .bar{width:50px;height:6px;border-radius:6px;background:#4b5563;transition:all .4s}
+  .bar.on{background:linear-gradient(90deg,#22d3ee,#3b82f6)}
+  .lbl{display:none}
+
+  /* card */
+  .card{
+    background:rgba(255,255,255,.96);border-radius:28px;padding:34px;
+    box-shadow:0 25px 60px rgba(0,0,0,.35);animation:fade .5s ease-out;
+  }
+  @keyframes fade{from{opacity:0;transform:translateY(20px)}to{opacity:1;transform:none}}
+  h2{font-size:26px;display:flex;align-items:center;gap:12px;margin-bottom:24px}
+  h2 .ico{width:46px;height:46px;border-radius:14px;display:flex;align-items:center;justify-content:center;font-size:22px;color:#fff}
+  .ic1{background:linear-gradient(135deg,#6366f1,#7c3aed)}
+  .ic2{background:linear-gradient(135deg,#a855f7,#ec4899)}
+  .ic3{background:linear-gradient(135deg,#22c55e,#059669)}
+
+  .panel{padding:22px;border-radius:20px;margin-bottom:22px}
+  .p-blue{background:linear-gradient(135deg,#eff6ff,#e0e7ff);border:2px solid #bfdbfe}
+  .p-violet{background:linear-gradient(135deg,#faf5ff,#fdf2f8);border:2px solid #e9d5ff}
+  .p-avg{background:linear-gradient(135deg,#fce7f3,#ede9fe,#e0e7ff);border:2px solid #f9a8d4;box-shadow:0 10px 25px rgba(168,85,247,.2)}
+  .tip{background:linear-gradient(90deg,#cffafe,#dbeafe);border:2px solid #67e8f9;color:#164e63;font-size:14px;border-radius:16px;padding:14px 18px}
+
+  label.t{display:block;font-weight:700;margin-bottom:10px}
+  input[type=number]{
+    width:100%;padding:13px 16px;font-size:18px;font-weight:600;border:2px solid #c7d2fe;border-radius:14px;
+    outline:none;transition:.2s;background:#fff;color:var(--ink);
+  }
+  input[type=number]:focus{border-color:var(--indigo);box-shadow:0 0 0 4px rgba(99,102,241,.2)}
+  input[type=range]{width:100%;margin-top:12px;accent-color:var(--indigo);height:6px}
+  .chip{display:inline-block;margin-top:10px;background:rgba(255,255,255,.8);color:#4338ca;font-weight:700;font-size:13px;padding:4px 12px;border-radius:999px}
+
+  .row-head{display:flex;justify-content:space-between;align-items:center;margin-bottom:14px}
+  .count{background:#fff;color:#7e22ce;font-weight:700;font-size:13px;padding:4px 14px;border-radius:999px;box-shadow:0 2px 6px rgba(0,0,0,.1)}
+  #plist{display:flex;flex-direction:column;gap:10px;max-height:380px;overflow-y:auto;padding-right:4px}
+  .prow{display:flex;gap:10px;align-items:center;background:rgba(255,255,255,.75);padding:10px;border-radius:14px;box-shadow:0 2px 8px rgba(0,0,0,.06)}
+  .num{flex:0 0 38px;height:38px;border-radius:50%;background:#f3e8ff;color:#7e22ce;font-weight:800;font-size:13px;display:flex;align-items:center;justify-content:center}
+  .del{border:none;background:transparent;color:var(--red);font-size:20px;cursor:pointer;width:40px;height:40px;border-radius:12px;transition:.2s}
+  .del:hover{background:#fee2e2;transform:scale(1.1)}
+  .add{
+    margin-top:14px;width:100%;padding:14px;border:2px dashed #c084fc;background:transparent;color:#7e22ce;
+    font-weight:700;font-size:16px;border-radius:14px;cursor:pointer;transition:.2s;
+  }
+  .add:hover{background:#f3e8ff;transform:scale(1.02)}
+
+  .avg-lbl{font-size:12px;font-weight:700;text-transform:uppercase;letter-spacing:1px;color:#4b5563}
+  .avg-val{font-size:clamp(34px,8vw,52px);font-weight:800;background:linear-gradient(90deg,#db2777,#7c3aed,#4f46e5);-webkit-background-clip:text;background-clip:text;color:transparent}
+  .avg-sub{font-size:13px;color:#6b7280;margin-top:4px}
+
+  .btn{
+    margin-top:26px;width:100%;padding:18px;border:none;border-radius:18px;color:#fff;font-size:18px;font-weight:700;cursor:pointer;
+    display:flex;align-items:center;justify-content:center;gap:10px;transition:.2s;
+    background:linear-gradient(90deg,#06b6d4,#3b82f6,#4f46e5);box-shadow:0 12px 28px rgba(59,130,246,.4);
+  }
+  .btn:hover{transform:scale(1.03)}
+  .btn.grey{background:linear-gradient(90deg,#4b5563,#1f2937);box-shadow:0 12px 28px rgba(0,0,0,.3)}
+  .err{background:#fee2e2;border:2px solid #fca5a5;color:#991b1b;padding:12px 16px;border-radius:14px;margin-top:18px;font-weight:600;display:none}
+
+  /* results */
+  .grid{display:grid;grid-template-columns:1fr 1fr;gap:18px}
+  .rc{padding:24px;border-radius:20px;transition:.25s}
+  .rc:hover{transform:translateY(-4px) scale(1.02)}
+  .rc .k{font-size:12px;font-weight:700;text-transform:uppercase;letter-spacing:1px;color:#4b5563;margin-bottom:8px}
+  .rc .v{font-size:clamp(28px,6vw,40px);font-weight:800;margin-bottom:6px}
+  .rc .s{font-size:13px;color:#6b7280}
+  .r-pink{background:linear-gradient(135deg,#fce7f3,#ede9fe);border:2px solid #f9a8d4}.r-pink .v{color:#7e22ce}
+  .r-blue{background:linear-gradient(135deg,#dbeafe,#cffafe);border:2px solid #93c5fd}.r-blue .v{color:#1d4ed8}
+  .r-green{background:linear-gradient(135deg,#dcfce7,#d1fae5);border:2px solid #86efac}.r-green .v{color:#15803d}
+  .r-orange{background:linear-gradient(135deg,#ffedd5,#fef9c3);border:2px solid #fdba74}.r-orange .v{color:#c2410c}
+
+  /* pendulums */
+  .pend-wrap{margin-top:24px;background:linear-gradient(180deg,#eef2ff,#fff);border:2px solid #c7d2fe;border-radius:20px;padding:18px 10px 10px}
+  .pend-wrap h3{text-align:center;font-size:15px;margin-bottom:6px;color:#3730a3}
+  .pends{display:flex;justify-content:space-around}
+  .pend{width:150px;height:190px;position:relative;text-align:center}
+  .pend .rod{
+    position:absolute;top:0;left:50%;width:3px;height:130px;margin-left:-1.5px;background:#475569;
+    transform-origin:top center;animation:swing var(--T,2s) ease-in-out infinite alternate;
+  }
+  .pend .bob{position:absolute;bottom:-18px;left:50%;width:34px;height:34px;margin-left:-17px;border-radius:50%;box-shadow:0 4px 10px rgba(0,0,0,.3)}
+  .pend .bob.m{background:radial-gradient(circle at 30% 30%,#f9a8d4,#7c3aed)}
+  .pend .bob.t{background:radial-gradient(circle at 30% 30%,#a5f3fc,#1d4ed8)}
+  .pend .pivot{position:absolute;top:-4px;left:50%;width:12px;height:12px;margin-left:-6px;border-radius:50%;background:#1e293b;z-index:2}
+  .pend .cap{position:absolute;bottom:0;width:100%;font-size:13px;font-weight:700;color:#475569}
+  @keyframes swing{from{transform:rotate(-22deg)}to{transform:rotate(22deg)}}
+
+  /* step 3 */
+  .big{text-align:center;margin-bottom:24px}
+  .big-in{display:inline-block;padding:34px 54px;border-radius:28px;box-shadow:0 14px 34px rgba(0,0,0,.2);transition:.25s}
+  .big-in:hover{transform:scale(1.04)}
+  .big-in .k{font-size:17px;font-weight:700;text-transform:uppercase;letter-spacing:1px;margin-bottom:6px}
+  .big-in .v{font-size:clamp(48px,12vw,76px);font-weight:800}
+  .ok{background:linear-gradient(135deg,#bbf7d0,#86efac);border:4px solid #4ade80;color:#166534}
+  .mid{background:linear-gradient(135deg,#fef08a,#fdba74);border:4px solid #facc15;color:#854d0e}
+  .bad{background:linear-gradient(135deg,#fecaca,#f9a8d4);border:4px solid #f87171;color:#991b1b}
+  .diff{background:linear-gradient(135deg,#f3f4f6,#e5e7eb);border:2px solid #d1d5db;padding:20px;border-radius:18px}
+  .diff .k{font-size:12px;font-weight:700;text-transform:uppercase;color:#4b5563;margin-bottom:6px}
+  .diff .v{font-size:28px;font-weight:800}
+  .fb{margin-top:22px;padding:24px;border-radius:20px;border-width:4px;border-style:solid}
+  .fb h4{font-size:22px;margin-bottom:8px}
+  .fb.ok{background:linear-gradient(90deg,#dcfce7,#d1fae5);border-color:#4ade80;color:#166534}
+  .fb.mid{background:linear-gradient(90deg,#fef9c3,#ffedd5);border-color:#facc15;color:#854d0e}
+  .fb.bad{background:linear-gradient(90deg,#fee2e2,#fce7f3);border-color:#f87171;color:#991b1b}
+  .cmp{margin-top:22px;padding:20px;border-radius:18px;background:#f8fafc;border:2px solid #e2e8f0}
+  .cmp h4{margin-bottom:12px}
+  .meter{margin:10px 0}
+  .meter span{font-size:13px;font-weight:700;color:#475569;display:flex;justify-content:space-between;margin-bottom:4px}
+  .track{height:18px;border-radius:999px;background:#e2e8f0;overflow:hidden}
+  .fill{height:100%;border-radius:999px;transition:width 1s ease}
+  .causes{margin-top:22px;padding:24px;border-radius:20px;background:linear-gradient(90deg,#e0e7ff,#ede9fe);border:2px solid #a5b4fc;color:#3730a3}
+  .causes h4{margin-bottom:10px;font-size:18px}
+  .causes li{margin:6px 0 6px 20px;font-weight:500}
+
+  footer{text-align:center;margin-top:30px}
+  footer div{display:inline-block;background:rgba(255,255,255,.92);padding:14px 30px;border-radius:18px;box-shadow:0 10px 30px rgba(0,0,0,.3)}
+  footer b{background:linear-gradient(90deg,#4f46e5,#7c3aed);-webkit-background-clip:text;background-clip:text;color:transparent}
+  footer small{display:block;color:#6b7280;margin-top:2px}
+
+  @media(max-width:640px){
+    .card{padding:22px 18px}.grid{grid-template-columns:1fr}.bar{width:26px}.dot{width:38px;height:38px}
+    .big-in{padding:24px 28px}
+  }
+  @media print{
+    body{background:#fff}.blob,.progress,.btn,.add,.del{display:none!important}.card{box-shadow:none}
+  }
+</style>
+</head>
+<body>
+<div class="blob b1"></div><div class="blob b2"></div><div class="blob b3"></div>
+
+<div class="wrap">
+  <header>
+    <div class="logo-box">
+      <img id="logoImg" src="data:image/jpeg;base64,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8zgtfF/I6yiiivPO8KKKKACiiigAooooAKKKKAPn/wCLtp9m8aGYdLm3ST8sqa4GvX/jbZcaXfD/AG4mP/jwryJV3NtHcgV9JgZ81CJ8/i48taR9V6Enl6Bp6f3baMf+OitGq9gu3T7dcYxEo/SrFfO1H77Pdpq0EgoooqSwooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigDzf4w20l1oOnxQrudrsKAPUgiu08P6cNJ0GysR1hiVT9cc1Yu7C2vXgaeMOYJBLGG6K2CAf1q5W0qt6Sp+ZhGl+9dQKKKKxNwooooAKKKKACiiigAooooA4X4rWH2zwRPKqkvbyJKP/QT+hrwSxj83UbaPGd8qr+ZAr6k1uyXUtEvbJuk0LJ+lfNHh+3Y+K9Nt2UhxdorL9GGa9nLan7uUex5GYQ99S7n1LEoSFFHQAD9KfQBhQKK8du7uetFWSCiiikMKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooACMivCIdH+w/GqK124Q3RmX6EFq93rjtT0MSfEbSdWVPl8mRXYeoHGa6sJV9nJ+aZyYunzxTXRo7GiiiuU6wooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKQqCQSASOh9KWj1oAKKKKACiiigAooooAKKKKACiiigD/9k=" alt="Logo Liceo Volta Como">
+      <span class="reg">®</span>
+    </div>
+    <h1>Esperimento del Pendolo</h1>
+    <p>Scopri l'accelerazione di gravità con precisione scientifica</p>
+  </header>
+
+  <div class="progress"><div class="progress-in" id="progress"></div></div>
+
+  <main id="app"></main>
+
+  <footer>
+    <div>
+      <p>Applicazione realizzata dal <b>prof. Luca Romanò</b></p>
+      <small>Liceo Volta – Como</small>
+    </div>
+  </footer>
+</div>
+
+<script>
+(function(){
+  const G_T = 9.81, MAX = 10;
+  const S = { step:1, L:1.0, periods:[2.0], avg:0, Tth:0, g:0, err:0 };
+  const app = document.getElementById('app');
+  const prog = document.getElementById('progress');
+  const f = (n,d=4)=>Number(n).toFixed(d).replace('.',',');
+
+  function renderProgress(){
+    prog.innerHTML = [1,2,3].map((n,i)=>
+      (i?`<div class="bar ${S.step>=n?'on':''}"></div>`:'')+
+      `<div class="dot ${S.step>=n?'on':''}">${n}</div>`).join('');
+  }
+  const mean = ()=> S.periods.reduce((a,b)=>a+b,0)/S.periods.length;
+
+  /* ---------- STEP 1 ---------- */
+  function step1(){
+    app.innerHTML = `
+    <section class="card">
+      <h2><span class="ico ic1">🧮</span>Inserisci i Dati Sperimentali</h2>
+
+      <div class="panel p-blue">
+        <label class="t" for="L">📏 Lunghezza del filo (L) – metri</label>
+        <input id="L" type="number" step="0.01" min="0.01" value="${S.L}">
+        <input id="Lr" type="range" min="0.1" max="3" step="0.01" value="${Math.min(3,Math.max(0.1,S.L))}">
+        <span class="chip" id="Lchip">Valore: ${f(S.L,2)} m</span>
+      </div>
+
+      <div class="panel p-violet">
+        <div class="row-head">
+          <label class="t" style="margin:0">⏱️ Periodi misurati (T) – secondi</label>
+          <span class="count" id="count"></span>
+        </div>
+        <div id="plist"></div>
+        <button class="add" id="add">➕ Aggiungi misura</button>
+      </div>
+
+      <div class="panel p-avg">
+        <div class="avg-lbl">Periodo medio calcolato</div>
+        <div class="avg-val" id="avg"></div>
+        <div class="avg-sub" id="avgsub"></div>
+      </div>
+
+      <div class="tip">💡 <b>Suggerimento:</b> effettua più misure del periodo per aumentare la precisione. Puoi inserire fino a 10 misurazioni: userò la loro media per tutti i calcoli.</div>
+      <div class="err" id="err"></div>
+      <button class="btn" id="go">Calcola risultati ➜</button>
+    </section>`;
+
+    const L = document.getElementById('L'), Lr = document.getElementById('Lr');
+    L.addEventListener('input',()=>{S.L=parseFloat(L.value)||0; Lr.value=S.L; chip();});
+    Lr.addEventListener('input',()=>{S.L=parseFloat(Lr.value); L.value=S.L; chip();});
+    function chip(){document.getElementById('Lchip').textContent='Valore: '+f(S.L,2)+' m';}
+
+    document.getElementById('add').onclick=()=>{
+      if(S.periods.length<MAX){S.periods.push(S.periods[S.periods.length-1]||2.0); drawList(true);}
+    };
+    document.getElementById('go').onclick=()=>{
+      const e=document.getElementById('err');
+      if(!(S.L>0)){e.textContent='Inserisci una lunghezza del filo maggiore di zero.';e.style.display='block';return;}
+      if(S.periods.some(p=>!(p>0))){e.textContent='Tutti i periodi devono essere maggiori di zero.';e.style.display='block';return;}
+      compute(); S.step=2; render();
+    };
+    drawList();
+  }
+
+  function drawList(focusLast){
+    const list=document.getElementById('plist');
+    list.innerHTML=S.periods.map((p,i)=>`
+      <div class="prow">
+        <div class="num">#${i+1}</div>
+        <input type="number" step="0.01" min="0.01" value="${p}" data-i="${i}" aria-label="Periodo ${i+1}">
+        ${S.periods.length>1?`<button class="del" data-d="${i}" title="Rimuovi">🗑️</button>`:''}
+      </div>`).join('');
+    list.querySelectorAll('input').forEach(inp=>inp.addEventListener('input',e=>{
+      S.periods[+e.target.dataset.i]=parseFloat(e.target.value)||0; updAvg();
+    }));
+    list.querySelectorAll('.del').forEach(b=>b.onclick=()=>{S.periods.splice(+b.dataset.d,1);drawList();});
+    document.getElementById('add').style.display = S.periods.length>=MAX?'none':'block';
+    if(focusLast){const ins=list.querySelectorAll('input');ins[ins.length-1].focus();ins[ins.length-1].select();list.scrollTop=list.scrollHeight;}
+    updAvg();
+  }
+  function updAvg(){
+    document.getElementById('count').textContent=S.periods.length+'/'+MAX+' misure';
+    document.getElementById('avg').textContent=f(mean())+' s';
+    const n=S.periods.length;
+    document.getElementById('avgsub').textContent='📊 Media di '+n+' misurazion'+(n>1?'i':'e');
+  }
+
+  function compute(){
+    S.avg=mean();
+    S.Tth=2*Math.PI*Math.sqrt(S.L/G_T);
+    S.g=4*Math.PI*Math.PI*S.L/(S.avg*S.avg);
+    S.err=Math.abs(S.g-G_T)/G_T*100;
+  }
+
+  /* ---------- STEP 2 ---------- */
+  function step2(){
+    app.innerHTML=`
+    <section class="card">
+      <h2><span class="ico ic2">📉</span>Valori Teorici e Calcolati</h2>
+      <div class="grid">
+        <div class="rc r-pink"><div class="k">📊 Periodo medio misurato</div><div class="v">${f(S.avg)} s</div><div class="s">Media di ${S.periods.length} misurazion${S.periods.length>1?'i':'e'} sperimentali</div></div>
+        <div class="rc r-blue"><div class="k">🎯 Periodo teorico</div><div class="v">${f(S.Tth)} s</div><div class="s">T = 2π√(L/g) con g = ${f(G_T,2)} m/s²</div></div>
+        <div class="rc r-green"><div class="k">🚀 g calcolata</div><div class="v">${f(S.g)} m/s²</div><div class="s">g = 4π²L / T² dal periodo medio</div></div>
+        <div class="rc r-orange"><div class="k">⚡ g teorica</div><div class="v">${f(G_T,2)} m/s²</div><div class="s">Valore standard dell'accelerazione di gravità</div></div>
+      </div>
+
+      <div class="pend-wrap">
+        <h3>Confronto animato delle oscillazioni (L = ${f(S.L,2)} m)</h3>
+        <div class="pends">
+          <div class="pend" style="--T:${S.avg/2}s"><div class="pivot"></div><div class="rod"><div class="bob m"></div></div><div class="cap">Misurato ${f(S.avg,3)} s</div></div>
+          <div class="pend" style="--T:${S.Tth/2}s"><div class="pivot"></div><div class="rod"><div class="bob t"></div></div><div class="cap">Teorico ${f(S.Tth,3)} s</div></div>
+        </div>
+      </div>
+
+      <button class="btn" id="next">Vedi analisi errore ➜</button>
+    </section>`;
+    document.getElementById('next').onclick=()=>{S.step=3;render();};
+  }
+
+  /* ---------- STEP 3 ---------- */
+  function step3(){
+    const e=S.err, cls=e<5?'ok':e<10?'mid':'bad';
+    const msg = e<5
+      ? ['🎉 Eccellente!','Il tuo esperimento ha un errore molto basso. Le misure sono state effettuate con precisione! L\'uso di misurazioni multiple ha migliorato i risultati.']
+      : e<10
+      ? ['👍 Buon lavoro!','L\'errore è accettabile per un esperimento di laboratorio. Prova ad aggiungere altre misurazioni per migliorare la precisione della media.']
+      : ['🔍 Ricontrolla i dati','L\'errore è elevato. Verifica la lunghezza del filo e i periodi misurati (conviene cronometrare più oscillazioni e dividere). Aggiungi misure per una media più affidabile.'];
+    const max=Math.max(S.g,G_T)*1.1;
+    app.innerHTML=`
+    <section class="card">
+      <h2><span class="ico ic3">📈</span>Analisi del Discostamento</h2>
+      <div class="big"><div class="big-in ${cls}"><div class="k">Errore percentuale</div><div class="v">${f(e,2)}%</div></div></div>
+      <div class="grid">
+        <div class="diff"><div class="k">Differenza assoluta (g)</div><div class="v">${f(Math.abs(S.g-G_T))} m/s²</div></div>
+        <div class="diff"><div class="k">Differenza periodo</div><div class="v">${f(Math.abs(S.avg-S.Tth))} s</div></div>
+      </div>
+
+      <div class="cmp">
+        <h4>Confronto tra le due g</h4>
+        <div class="meter"><span><em>g calcolata</em><em>${f(S.g,3)} m/s²</em></span><div class="track"><div class="fill" style="width:0;background:linear-gradient(90deg,#22c55e,#059669)" data-w="${S.g/max*100}"></div></div></div>
+        <div class="meter"><span><em>g teorica</em><em>${f(G_T,3)} m/s²</em></span><div class="track"><div class="fill" style="width:0;background:linear-gradient(90deg,#f59e0b,#ea580c)" data-w="${G_T/max*100}"></div></div></div>
+      </div>
+
+      <div class="fb ${cls}"><h4>${msg[0]}</h4><p>${msg[1]}</p></div>
+
+      <div class="causes">
+        <h4>📚 Possibili cause di errore</h4>
+        <ul>
+          <li>Errore nella misura della lunghezza del filo (si misura fino al centro della massa)</li>
+          <li>Errore umano nel cronometraggio</li>
+          <li>Oscillazioni non perfettamente piane</li>
+          <li>Angolo iniziale troppo ampio (oltre 10°)</li>
+          <li>Resistenza dell'aria trascurata</li>
+          <li>Numero insufficiente di misurazioni per calcolare la media</li>
+        </ul>
+      </div>
+
+      <button class="btn grey" id="reset">🔄 Nuovo esperimento</button>
+    </section>`;
+    requestAnimationFrame(()=>setTimeout(()=>document.querySelectorAll('.fill').forEach(x=>x.style.width=x.dataset.w+'%'),60));
+    document.getElementById('reset').onclick=()=>{S.step=1;S.L=1.0;S.periods=[2.0];render();};
+  }
+
+  function render(){renderProgress();({1:step1,2:step2,3:step3})[S.step]();window.scrollTo({top:0,behavior:'smooth'});}
+  render();
+})();
+</script>
+</body>
+</html>
